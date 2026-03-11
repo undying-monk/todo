@@ -1,0 +1,15 @@
+goos: darwin
+goarch: arm64
+cpu: Apple M1
+BenchmarkMutexCounter-8   	  290761	      4116 ns/op	     504 B/op	      12 allocs/op
+BenchmarkMutexCounter-8   	  294980	      4228 ns/op	     504 B/op	      12 allocs/op
+BenchmarkMutexCounter-8   	  296394	      4061 ns/op	     504 B/op	      12 allocs/op
+BenchmarkMutexCounter-8   	  292576	      4062 ns/op	     504 B/op	      12 allocs/op
+BenchmarkMutexCounter-8   	  289575	      4237 ns/op	     504 B/op	      12 allocs/op
+BenchmarkMutexCounter-8   	  291550	      4170 ns/op	     504 B/op	      12 allocs/op
+BenchmarkMutexCounter-8   	  293407	      4018 ns/op	     504 B/op	      12 allocs/op
+BenchmarkMutexCounter-8   	  297684	      3976 ns/op	     504 B/op	      12 allocs/op
+BenchmarkMutexCounter-8   	  300394	      3995 ns/op	     504 B/op	      12 allocs/op
+BenchmarkMutexCounter-8   	  294804	      3990 ns/op	     504 B/op	      12 allocs/op
+PASS
+ok  	command-line-arguments	12.712s

@@ -1,0 +1,15 @@
+goos: darwin
+goarch: arm64
+cpu: Apple M1
+BenchmarkAtomicCounter-8   	  302758	      3993 ns/op	     336 B/op	      11 allocs/op
+BenchmarkAtomicCounter-8   	  309384	      3882 ns/op	     336 B/op	      11 allocs/op
+BenchmarkAtomicCounter-8   	  311430	      4155 ns/op	     336 B/op	      11 allocs/op
+BenchmarkAtomicCounter-8   	  314906	      3844 ns/op	     336 B/op	      11 allocs/op
+BenchmarkAtomicCounter-8   	  321292	      3794 ns/op	     336 B/op	      11 allocs/op
+BenchmarkAtomicCounter-8   	  313773	      3821 ns/op	     336 B/op	      11 allocs/op
+BenchmarkAtomicCounter-8   	  297715	      3907 ns/op	     336 B/op	      11 allocs/op
+BenchmarkAtomicCounter-8   	  296928	      4041 ns/op	     336 B/op	      11 allocs/op
+BenchmarkAtomicCounter-8   	  304279	      4003 ns/op	     336 B/op	      11 allocs/op
+BenchmarkAtomicCounter-8   	  308001	      3894 ns/op	     336 B/op	      11 allocs/op
+PASS
+ok  	command-line-arguments	12.637s

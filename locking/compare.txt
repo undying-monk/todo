@@ -1,0 +1,65 @@
+goos: darwin
+goarch: arm64
+cpu: Apple M1
+BenchmarkCounterCompare/MutexCounter/N=10-8         	  296425	      4024 ns/op	     504 B/op	      12 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=10-8         	  307885	      3985 ns/op	     504 B/op	      12 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=10-8         	  306006	      3975 ns/op	     504 B/op	      12 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=10-8         	  305259	      4119 ns/op	     504 B/op	      12 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=10-8         	  304574	      4008 ns/op	     504 B/op	      12 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=10-8         	  303166	      3979 ns/op	     504 B/op	      12 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=10-8         	  301359	      3969 ns/op	     504 B/op	      12 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=10-8         	  299740	      3970 ns/op	     504 B/op	      12 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=10-8         	  284149	      3970 ns/op	     504 B/op	      12 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=10-8         	  303286	      3964 ns/op	     504 B/op	      12 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=10-8    	  316164	      3774 ns/op	     336 B/op	      11 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=10-8    	  322155	      3753 ns/op	     336 B/op	      11 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=10-8    	  325222	      3766 ns/op	     336 B/op	      11 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=10-8    	  325622	      3745 ns/op	     336 B/op	      11 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=10-8    	  322216	      3743 ns/op	     336 B/op	      11 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=10-8    	  318717	      3771 ns/op	     336 B/op	      11 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=10-8    	  322711	      3750 ns/op	     336 B/op	      11 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=10-8    	  307104	      3741 ns/op	     336 B/op	      11 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=10-8    	  320569	      3719 ns/op	     336 B/op	      11 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=10-8    	  300703	      3777 ns/op	     336 B/op	      11 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=100-8        	   39159	     30505 ns/op	    4826 B/op	     102 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=100-8        	   39373	     31168 ns/op	    4824 B/op	     102 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=100-8        	   37910	     31742 ns/op	    4824 B/op	     102 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=100-8        	   38071	     31773 ns/op	    4824 B/op	     102 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=100-8        	   37903	     31780 ns/op	    4824 B/op	     102 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=100-8        	   38305	     31565 ns/op	    4824 B/op	     102 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=100-8        	   38204	     32321 ns/op	    4824 B/op	     102 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=100-8        	   38109	     31430 ns/op	    4824 B/op	     102 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=100-8        	   38174	     31378 ns/op	    4824 B/op	     102 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=100-8        	   38200	     33058 ns/op	    4824 B/op	     102 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=100-8   	   38494	     28350 ns/op	    3216 B/op	     101 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=100-8   	   44876	     26996 ns/op	    3216 B/op	     101 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=100-8   	   46323	     26170 ns/op	    3216 B/op	     101 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=100-8   	   45634	     27675 ns/op	    3216 B/op	     101 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=100-8   	   43288	     28675 ns/op	    3216 B/op	     101 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=100-8   	   34238	     34886 ns/op	    3216 B/op	     101 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=100-8   	   44788	     27734 ns/op	    3216 B/op	     101 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=100-8   	   43177	     36424 ns/op	    3216 B/op	     101 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=100-8   	   30307	     36597 ns/op	    3216 B/op	     101 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=100-8   	   35378	     30415 ns/op	    3216 B/op	     101 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=1000-8       	    4180	    374095 ns/op	   48134 B/op	    1002 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=1000-8       	    3942	    354424 ns/op	   48102 B/op	    1002 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=1000-8       	    3838	    325373 ns/op	   48077 B/op	    1002 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=1000-8       	    3640	    330109 ns/op	   48075 B/op	    1002 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=1000-8       	    3540	    377172 ns/op	   48070 B/op	    1002 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=1000-8       	    3408	    354103 ns/op	   48066 B/op	    1002 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=1000-8       	    3652	    536213 ns/op	   48102 B/op	    1002 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=1000-8       	    3662	    344776 ns/op	   48065 B/op	    1002 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=1000-8       	    3553	    330350 ns/op	   48073 B/op	    1002 allocs/op
+BenchmarkCounterCompare/MutexCounter/N=1000-8       	    3540	    337408 ns/op	   48077 B/op	    1002 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=1000-8  	    4414	    264052 ns/op	   32016 B/op	    1001 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=1000-8  	    4851	    254816 ns/op	   32016 B/op	    1001 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=1000-8  	    4876	    254567 ns/op	   32016 B/op	    1001 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=1000-8  	    4648	    253699 ns/op	   32016 B/op	    1001 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=1000-8  	    4630	    281863 ns/op	   32016 B/op	    1001 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=1000-8  	    3942	    317530 ns/op	   32016 B/op	    1001 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=1000-8  	    3920	    295922 ns/op	   32016 B/op	    1001 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=1000-8  	    4170	    298630 ns/op	   32017 B/op	    1001 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=1000-8  	    4269	    289401 ns/op	   32016 B/op	    1001 allocs/op
+BenchmarkCounterCompare/RaceAtomicCounter/N=1000-8  	    4310	    276386 ns/op	   32016 B/op	    1001 allocs/op
+PASS
+ok  	command-line-arguments	74.403s
