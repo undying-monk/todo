@@ -37,62 +37,72 @@ func SetupRouter() *gin.Engine {
 }
 
 func GetArticles(c *gin.Context) {
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	cursor := c.Query("cursor")
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
 	
-	if page < 1 {
-		page = 1
-	}
 	if limit < 1 || limit > 100 {
 		limit = 20
 	}
-	offset := (page - 1) * limit
 
 	var articles []models.Article
-	result := database.DB.Order("published_at desc").Limit(limit).Offset(offset).Find(&articles)
+	query := database.DB.Order("id desc").Limit(limit)
+	if cursor != "" {
+		query = query.Where("id < ?", cursor)
+	}
+
+	result := query.Find(&articles)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 		return
 	}
 
+	var nextCursor string
+	if len(articles) == limit {
+		nextCursor = articles[len(articles)-1].ID
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"data":  articles,
-		"page":  page,
-		"limit": limit,
+		"data":   articles,
+		"cursor": nextCursor,
+		"limit":  limit,
 	})
 }
 
 func SearchArticles(c *gin.Context) {
 	q := c.Query("q")
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	cursor := c.Query("cursor")
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
 
-	if page < 1 {
-		page = 1
-	}
 	if limit < 1 || limit > 100 {
 		limit = 20
 	}
-	offset := (page - 1) * limit
 
 	var articles []models.Article
-	query := database.DB.Order("published_at desc")
+	query := database.DB.Order("id desc")
 	
 	if q != "" {
 		searchStr := "%" + q + "%"
 		query = query.Where("title ILIKE ? OR content_snippet ILIKE ?", searchStr, searchStr)
 	}
+	if cursor != "" {
+		query = query.Where("id < ?", cursor)
+	}
 
-	result := query.Limit(limit).Offset(offset).Find(&articles)
+	result := query.Limit(limit).Find(&articles)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 		return
 	}
 
+	var nextCursor string
+	if len(articles) == limit {
+		nextCursor = articles[len(articles)-1].ID
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"data":  articles,
-		"page":  page,
-		"limit": limit,
-		"query": q,
+		"data":   articles,
+		"cursor": nextCursor,
+		"limit":  limit,
+		"query":  q,
 	})
 }

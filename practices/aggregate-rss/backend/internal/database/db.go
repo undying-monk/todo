@@ -25,6 +25,9 @@ func InitDB() {
 		log.Fatal("Failed to connect to database:", err)
 	}
 
+	// Enable pg_trgm for GIN index on text search
+	db.Exec("CREATE EXTENSION IF NOT EXISTS pg_trgm;")
+
 	err = db.AutoMigrate(&models.Article{})
 	if err != nil {
 		log.Fatal("Failed to migrate database:", err)

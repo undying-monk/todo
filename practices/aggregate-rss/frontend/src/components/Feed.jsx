@@ -3,36 +3,29 @@ import ArticleCard from './ArticleCard';
 
 const Feed = ({ searchQuery }) => {
   const [articles, setArticles] = useState([]);
-  const [page, setPage] = useState(1);
+  const [cursor, setCursor] = useState(null);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const observer = useRef();
 
-  const lastArticleRef = useCallback(node => {
-    if (loading) return;
-    if (observer.current) observer.current.disconnect();
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore) {
-        setPage(prevPage => prevPage + 1);
-      }
-    });
-    if (node) observer.current.observe(node);
-  }, [loading, hasMore]);
-
-  const fetchArticles = useCallback(async () => {
+  const fetchArticles = useCallback(async (currentCursor) => {
     setLoading(true);
     try {
       const endpoint = searchQuery 
-        ? `http://localhost:8080/api/articles/search?q=${encodeURIComponent(searchQuery)}&page=${page}&limit=10`
-        : `http://localhost:8080/api/articles?page=${page}&limit=10`;
+        ? `http://localhost:8080/api/articles/search?q=${encodeURIComponent(searchQuery)}&limit=10${currentCursor ? `&cursor=${currentCursor}` : ''}`
+        : `http://localhost:8080/api/articles?limit=10${currentCursor ? `&cursor=${currentCursor}` : ''}`;
       
       const response = await fetch(endpoint);
       const result = await response.json();
       
-      if (result.data) {
-        setArticles(prev => page === 1 ? result.data : [...prev, ...result.data]);
-        setHasMore(result.data.length === 10);
+      if (result.data && result.data.length > 0) {
+        setArticles(prev => currentCursor ? [...prev, ...result.data] : result.data);
+        setCursor(result.cursor || null);
+        setHasMore(!!result.cursor);
       } else {
+        if (!currentCursor) {
+          setArticles([]);
+        }
         setHasMore(false);
       }
     } catch (error) {
@@ -40,16 +33,24 @@ const Feed = ({ searchQuery }) => {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, page]);
+  }, [searchQuery]);
+
+  const lastArticleRef = useCallback(node => {
+    if (loading) return;
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore && cursor) {
+        fetchArticles(cursor);
+      }
+    });
+    if (node) observer.current.observe(node);
+  }, [loading, hasMore, cursor, fetchArticles]);
 
   useEffect(() => {
     setArticles([]);
-    setPage(1);
+    setCursor(null);
     setHasMore(true);
-  }, [searchQuery]);
-
-  useEffect(() => {
-    fetchArticles();
+    fetchArticles(null);
   }, [fetchArticles]);
 
   return (

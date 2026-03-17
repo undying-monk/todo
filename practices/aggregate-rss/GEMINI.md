@@ -11,6 +11,7 @@ A real-time news aggregation platform designed to collect, store, and display ar
 - **Job Scheduler**: Implement a scheduling system (e.g., Cron job, Celery, or background worker) that runs at a configurable interval (e.g., every 1 hour).
 - **RSS Parsing**: Capable of reading and parsing standard RSS/Atom feeds from multiple configured sources.
 - **Data Deduplication**: Ensure that the same article from a feed is not saved multiple times (use GUID or article URL as a unique identifier).
+- **Incremental Collection**: Optimize collection by checking the `published_at` timestamp of the latest article in the database for each source to avoid processing older articles.
 
 ### 2. Data Storage
 - **Database**: Use a suitable database (PostgreSQL, MongoDB, etc.) to store article metadata.
@@ -18,12 +19,15 @@ A real-time news aggregation platform designed to collect, store, and display ar
   - `content_snippet`: Brief description or snippet of the article
   - `category`: Category of the article (e.g., News, Sports, Tech, etc.)
   - `favicon`: URL to the source's favicon
-- **Indices**: Ensure indices on `published_at` (for sorting) and text-search indices on `title`/`content_snippet` (for fast searching).
+- **Indices**: 
+  - `published_at`: Normal index (for sorting)
+  - `category`: Normal index (for filtering)
+  - `title`: Inverted index (GIN/GIST) for fast text search
 
 ### 3. RESTful API Endpoints
 - **List Articles API**: 
   - Endpoint: `GET /api/articles`
-  - Features: Returns articles sorted by `published_at` in descending order. Must support pagination (e.g., `limit` and `offset` or cursor-based pagination).
+  - Features: Returns articles sorted by `published_at` in descending order. Must support cursor-based pagination using ULID (e.g., `limit` and `cursor` parameters).
 - **Search Articles API**: 
   - Endpoint: `GET /api/articles/search`
   - Query Params: `q` (search term), pagination parameters.
@@ -67,11 +71,14 @@ A real-time news aggregation platform designed to collect, store, and display ar
 ### Phase 2: Backend (BE) Implementation
 - [x] Setup Database Schema/Models
   - `id`, `title`, `link`, `source`, `favicon`, `published_at`, `content_snippet`, `category`
-  - Add indexing for `published_at` and text search
+  - [x] Add indexing for `published_at` (normal index)
+  - [x] Add indexing for `category` (normal index)
+  - [x] Add indexing for `title` (inverted index for text search)
 - [x] Implement RSS Feed Collector Service
   - [x] Add parsing logic for `https://vnexpress.net/rss`
   - [x] Add parsing logic for `https://tuoitre.vn/rss.htm`
   - [x] Add parsing logic for `https://thanhnien.vn/rss.html`
+- [x] Implement Incremental Collection logic (check latest `published_at`)
 - [x] Implement Job Scheduler to run collector every 1 hour
 - [x] Implement Data Deduplication logic based on article link/GUID
 - [x] Create RESTful API Endpoints

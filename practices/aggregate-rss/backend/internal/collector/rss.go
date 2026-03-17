@@ -2,23 +2,85 @@ package collector
 
 import (
 	"log"
+	"net/http"
+	"net/url"
+	"regexp"
+	"strings"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/dungtc/aggregate-rss/backend/internal/database"
 	"github.com/dungtc/aggregate-rss/backend/internal/models"
 	"github.com/mmcdole/gofeed"
 	"gorm.io/gorm/clause"
-	"regexp"
-	"strings"
 )
 
 var sourceMetadata = map[string]struct {
-	URL     string
-	Favicon string
+	IndexURL string
+	Selector string
+	Favicon  string
+	BaseURL  string
 }{
-	"VNExpress": {URL: "https://vnexpress.net/rss/tin-moi-nhat.rss", Favicon: "https://vne-static.zadn.vn/vnews/v1/favicon.ico"},
-	"TuoiTre":   {URL: "https://tuoitre.vn/rss/tin-moi-nhat.rss", Favicon: "https://static.tuoitre.vn/tuoitre/favicon.ico"},
-	"ThanhNien": {URL: "https://thanhnien.vn/rss/home.rss", Favicon: "https://thanhnien.vn/favicon.ico"},
+	"VNExpress": {
+		IndexURL: "https://vnexpress.net/rss",
+		Selector: "div.wrap-list-rss ul.list-rss a",
+		Favicon:  "https://vne-static.zadn.vn/vnews/v1/favicon.ico",
+		BaseURL:  "https://vnexpress.net",
+	},
+	"TuoiTre": {
+		IndexURL: "https://tuoitre.vn/rss.htm",
+		Selector: "div.content ul.list-rss a",
+		Favicon:  "https://static.tuoitre.vn/tuoitre/favicon.ico",
+		BaseURL:  "https://tuoitre.vn",
+	},
+	"ThanhNien": {
+		IndexURL: "https://thanhnien.vn/rss.html",
+		Selector: "ul.cate-content li.item a:first-child",
+		Favicon:  "https://thanhnien.vn/favicon.ico",
+		BaseURL:  "https://thanhnien.vn",
+	},
+}
+
+func getRSSLinks(indexURL, selector, baseURL string) ([]string, error) {
+	res, err := http.Get(indexURL)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != 200 {
+		return nil, err
+	}
+
+	doc, err := goquery.NewDocumentFromReader(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var links []string
+	seen := make(map[string]bool)
+
+	doc.Find(selector).Each(func(i int, s *goquery.Selection) {
+		href, exists := s.Attr("href")
+		if exists {
+			// Handle relative URLs
+			u, err := url.Parse(href)
+			if err != nil {
+				return
+			}
+			if !u.IsAbs() {
+				ref, _ := url.Parse(baseURL)
+				href = ref.ResolveReference(u).String()
+			}
+
+			if !seen[href] && (strings.HasSuffix(href, ".rss") || strings.HasSuffix(href, ".html") || strings.HasSuffix(href, ".htm")) {
+				links = append(links, href)
+				seen[href] = true
+			}
+		}
+	})
+
+	return links, nil
 }
 
 func extractThumbnail(item *gofeed.Item) string {
@@ -48,7 +110,7 @@ func mapToInternalCategory(rssCategories []string) string {
 	if len(rssCategories) == 0 {
 		return "General"
 	}
-	
+
 	cat := strings.ToLower(rssCategories[0])
 	switch {
 	case strings.Contains(cat, "thế giới") || strings.Contains(cat, "world"):
@@ -69,54 +131,76 @@ func mapToInternalCategory(rssCategories []string) string {
 }
 
 func CollectAllFeeds() {
-	log.Println("Starting RSS feed collection...")
+	log.Println("Starting comprehensive RSS feed collection...")
 	fp := gofeed.NewParser()
 
 	for source, metadata := range sourceMetadata {
-		feed, err := fp.ParseURL(metadata.URL)
+		log.Printf("Discovering RSS feeds for %s...\n", source)
+
+		// Fetch the latest published_at for this source to support incremental collection
+		var latestArticle models.Article
+		database.DB.Where("source = ?", source).Order("published_at desc").First(&latestArticle)
+		latestTime := latestArticle.PublishedAt
+		if !latestTime.IsZero() {
+			log.Printf("Incremental collection for %s: checking articles published after %v\n", source, latestTime)
+		}
+
+		rssLinks, err := getRSSLinks(metadata.IndexURL, metadata.Selector, metadata.BaseURL)
 		if err != nil {
-			log.Printf("Error parsing feed %s (%s): %v\n", source, metadata.URL, err)
+			log.Printf("Error discovering feeds for %s: %v\n", source, err)
 			continue
 		}
 
-		var newArticles []models.Article
-		for _, item := range feed.Items {
-			snippet := item.Description
+		log.Printf("Found %d feeds for %s. Starting parsing...\n", len(rssLinks), source)
 
-			pubDate := time.Now()
-			if item.PublishedParsed != nil {
-				pubDate = *item.PublishedParsed
-			} else if item.UpdatedParsed != nil {
-				pubDate = *item.UpdatedParsed
+		for _, rssURL := range rssLinks {
+			feed, err := fp.ParseURL(rssURL)
+			if err != nil {
+				continue
 			}
 
-			category := mapToInternalCategory(item.Categories)
+			var newArticles []models.Article
+			for _, item := range feed.Items {
+				pubDate := time.Now()
+				if item.PublishedParsed != nil {
+					pubDate = *item.PublishedParsed
+				} else if item.UpdatedParsed != nil {
+					pubDate = *item.UpdatedParsed
+				}
 
-			article := models.Article{
-				Title:          item.Title,
-				Link:           item.Link,
-				Source:         source,
-				Favicon:        metadata.Favicon,
-				PublishedAt:    pubDate,
-				ContentSnippet: snippet,
-				Category:       category,
-				ThumbnailURL:   extractThumbnail(item),
+				// Incremental check: Skip if article is older than or equal to the latest one in DB
+				if !latestTime.IsZero() && !pubDate.After(latestTime) {
+					continue
+				}
+
+				snippet := item.Description
+				category := mapToInternalCategory(item.Categories)
+
+				article := models.Article{
+					Title:          item.Title,
+					Link:           item.Link,
+					Source:         source,
+					Favicon:        metadata.Favicon,
+					PublishedAt:    pubDate,
+					ContentSnippet: snippet,
+					Category:       category,
+					ThumbnailURL:   extractThumbnail(item),
+				}
+				newArticles = append(newArticles, article)
 			}
-			newArticles = append(newArticles, article)
+
+			if len(newArticles) > 0 {
+				result := database.DB.Clauses(clause.OnConflict{
+					Columns:   []clause.Column{{Name: "link"}},
+					DoNothing: true,
+				}).Create(&newArticles)
+
+				if result.Error != nil {
+					log.Printf("Error saving articles from %s: %v\n", rssURL, result.Error)
+				}
+			}
 		}
-
-		if len(newArticles) > 0 {
-			result := database.DB.Clauses(clause.OnConflict{
-				Columns:   []clause.Column{{Name: "link"}},
-				DoNothing: true,
-			}).Create(&newArticles)
-			
-			if result.Error != nil {
-				log.Printf("Error saving articles for %s: %v\n", source, result.Error)
-			} else {
-				log.Printf("Processed feed from %s.\n", source)
-			}
-		}
+		log.Printf("Finished processing all discovered feeds for %s.\n", source)
 	}
-	log.Println("Finished RSS feed collection.")
+	log.Println("Finished comprehensive RSS feed collection.")
 }

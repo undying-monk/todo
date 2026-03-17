@@ -14,11 +14,13 @@ func main() {
 
 	database.InitDB()
 
-	s, err := scheduler.InitCron()
-	if err != nil {
-		log.Fatal("Failed to setup scheduler: ", err)
+	if config.AppConfig.EnabledScheduler {
+		s, err := scheduler.InitCron()
+		if err != nil {
+			log.Fatal("Failed to setup scheduler: ", err)
+		}
+		defer s.Shutdown()
 	}
-	defer s.Shutdown()
 
 	r := api.SetupRouter()
 
