@@ -1,0 +1,4 @@
+__label__science NASA reveals new high-resolution images of Jupiter's moons.
+__label__science Recent study shows that coffee might improve long-term memory.
+__label__technology Apple is rumored to be working on a foldable iPhone for 2027.
+__label__technology The new Nvidia Blackwell chips are sold out for the next year.

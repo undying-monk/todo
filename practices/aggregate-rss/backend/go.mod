@@ -3,6 +3,7 @@ module github.com/dungtc/aggregate-rss/backend
 go 1.25.0
 
 require (
+	github.com/fkurushin/fasttext-go-wrapper v0.1.4
 	github.com/gin-gonic/gin v1.12.0
 	github.com/go-co-op/gocron/v2 v2.19.1
 	github.com/google/uuid v1.6.0
@@ -64,3 +65,5 @@ require (
 	golang.org/x/text v0.34.0 // indirect
 	google.golang.org/protobuf v1.36.10 // indirect
 )
+
+replace github.com/fkurushin/fasttext-go-wrapper => ../fasttext-go-wrapper

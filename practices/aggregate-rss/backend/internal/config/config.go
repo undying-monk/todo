@@ -16,6 +16,7 @@ type Config struct {
 		Name     string
 		Port     string
 	}
+	FastTextModelPath string
 }
 
 var AppConfig Config
@@ -41,6 +42,7 @@ func LoadConfig() {
 	viper.BindEnv("database.password", "DB_PASSWORD")
 	viper.BindEnv("database.name", "DB_NAME")
 	viper.BindEnv("database.port", "DB_PORT")
+	viper.BindEnv("fasttextmodelpath", "FASTTEXT_MODEL_PATH")
 
 	// Default values
 	viper.SetDefault("database.host", "localhost")
@@ -48,6 +50,7 @@ func LoadConfig() {
 	viper.SetDefault("database.password", "news_password")
 	viper.SetDefault("database.name", "news_db")
 	viper.SetDefault("database.port", "5433")
+	viper.SetDefault("fasttextmodelpath", "model.bin")
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
