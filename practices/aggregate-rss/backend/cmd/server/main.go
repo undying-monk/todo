@@ -13,7 +13,8 @@ func main() {
 	config.LoadConfig()
 
 	database.InitDB()
-
+	log.Println("Enabled scheduler: ", config.AppConfig.EnabledScheduler)
+	log.Printf("AppConfig %+v", config.AppConfig)
 	if config.AppConfig.EnabledScheduler {
 		s, err := scheduler.InitCron()
 		if err != nil {

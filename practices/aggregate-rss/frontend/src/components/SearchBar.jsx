@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
-const SearchBar = ({ onSearch }) => {
-  const [query, setQuery] = useState('');
+const SearchBar = ({ onSearch, initialQuery = '' }) => {
+  const [query, setQuery] = useState(initialQuery);
+
+  useEffect(() => {
+    setQuery(initialQuery);
+  }, [initialQuery]);
 
   useEffect(() => {
     const timer = setTimeout(() => {

@@ -20,28 +20,37 @@ var sourceMetadata = map[string]struct {
 	Selector string
 	Favicon  string
 	BaseURL  string
+	Enabled  bool
 }{
 	"VNExpress": {
 		IndexURL: "https://vnexpress.net/rss",
 		Selector: "div.wrap-list-rss ul.list-rss a",
 		Favicon:  "https://vne-static.zadn.vn/vnews/v1/favicon.ico",
 		BaseURL:  "https://vnexpress.net",
+		Enabled:  false,
 	},
 	"TuoiTre": {
 		IndexURL: "https://tuoitre.vn/rss.htm",
 		Selector: "div.content ul.list-rss a",
 		Favicon:  "https://static.tuoitre.vn/tuoitre/favicon.ico",
 		BaseURL:  "https://tuoitre.vn",
+		Enabled:  false,
 	},
 	"ThanhNien": {
 		IndexURL: "https://thanhnien.vn/rss.html",
 		Selector: "ul.cate-content li.item a:first-child",
 		Favicon:  "https://thanhnien.vn/favicon.ico",
 		BaseURL:  "https://thanhnien.vn",
+		Enabled:  false,
 	},
 }
 
-func getRSSLinks(indexURL, selector, baseURL string) ([]string, error) {
+type RSSLink struct {
+	URL      string
+	Category string
+}
+
+func getRSSLinks(indexURL, selector, baseURL string) ([]RSSLink, error) {
 	res, err := http.Get(indexURL)
 	if err != nil {
 		return nil, err
@@ -57,7 +66,7 @@ func getRSSLinks(indexURL, selector, baseURL string) ([]string, error) {
 		return nil, err
 	}
 
-	var links []string
+	var links []RSSLink
 	seen := make(map[string]bool)
 
 	doc.Find(selector).Each(func(i int, s *goquery.Selection) {
@@ -73,9 +82,13 @@ func getRSSLinks(indexURL, selector, baseURL string) ([]string, error) {
 				href = ref.ResolveReference(u).String()
 			}
 
-			if !seen[href] && (strings.HasSuffix(href, ".rss") || strings.HasSuffix(href, ".html") || strings.HasSuffix(href, ".htm")) {
-				links = append(links, href)
-				seen[href] = true
+			title, exists := s.Attr("title")
+			if exists {
+				if !seen[href] && (strings.HasSuffix(href, ".rss") || strings.HasSuffix(href, ".html") || strings.HasSuffix(href, ".htm")) {
+					rawCategory := strings.TrimSpace(title)
+					links = append(links, RSSLink{URL: href, Category: rawCategory})
+					seen[href] = true
+				}
 			}
 		}
 	})
@@ -135,6 +148,10 @@ func CollectAllFeeds() {
 	fp := gofeed.NewParser()
 
 	for source, metadata := range sourceMetadata {
+		if !metadata.Enabled {
+			continue
+		}
+
 		log.Printf("Discovering RSS feeds for %s...\n", source)
 
 		// Fetch the latest published_at for this source to support incremental collection
@@ -153,8 +170,8 @@ func CollectAllFeeds() {
 
 		log.Printf("Found %d feeds for %s. Starting parsing...\n", len(rssLinks), source)
 
-		for _, rssURL := range rssLinks {
-			feed, err := fp.ParseURL(rssURL)
+		for _, rssLink := range rssLinks {
+			feed, err := fp.ParseURL(rssLink.URL)
 			if err != nil {
 				continue
 			}
@@ -174,7 +191,7 @@ func CollectAllFeeds() {
 				}
 
 				snippet := item.Description
-				category := mapToInternalCategory(item.Categories)
+				category := mapToInternalCategory([]string{rssLink.Category})
 
 				article := models.Article{
 					Title:          item.Title,
@@ -196,7 +213,7 @@ func CollectAllFeeds() {
 				}).Create(&newArticles)
 
 				if result.Error != nil {
-					log.Printf("Error saving articles from %s: %v\n", rssURL, result.Error)
+					log.Printf("Error saving articles from %s: %v\n", rssLink.URL, result.Error)
 				}
 			}
 		}

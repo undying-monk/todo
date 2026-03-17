@@ -27,7 +27,7 @@ A real-time news aggregation platform designed to collect, store, and display ar
 ### 3. RESTful API Endpoints
 - **List Articles API**: 
   - Endpoint: `GET /api/articles`
-  - Features: Returns articles sorted by `published_at` in descending order. Must support cursor-based pagination using ULID (e.g., `limit` and `cursor` parameters).
+  - Features: Returns articles sorted by `published_at` in descending order. Must support cursor-based pagination using ULID (e.g., `limit` and `cursor` parameters) and filtering by category.
 - **Search Articles API**: 
   - Endpoint: `GET /api/articles/search`
   - Query Params: `q` (search term), pagination parameters.
@@ -82,17 +82,22 @@ A real-time news aggregation platform designed to collect, store, and display ar
 - [x] Implement Job Scheduler to run collector every 1 hour
 - [x] Implement Data Deduplication logic based on article link/GUID
 - [x] Create RESTful API Endpoints
-  - [x] `GET /api/articles` (List with pagination & sorting)
+  - [x] `GET /api/articles` (List with pagination, sorting & category filter, 200 pages limit)
   - [x] `GET /api/articles/search` (Text search with pagination)
 - [x] Implement Article Categorization logic
   - [x] Categorize common topics (e.g., World, Politics, Sports, Technology, Entertainment)
   - [x] Map RSS feed categories to the internal categorization system
+  - [x] Categorize the article when it parses HTML DOM to retrieve rss link
 
 ### Phase 3: Frontend (FE) Implementation
 - [x] Setup core layout, styling (CSS/Tailwind) and routing
 - [x] Build Article Card Component
 - [x] Implement Feed / Home Page to display articles
+  - [x] Implement a beautiful, modern UI design with aesthetics and animations
+  - [x] Add categories navigation bar for easy traversal across multiple categories
 - [x] Integrate API `GET /api/articles`
+  - [x] In the feed home page, group articles by category on the UI with top 10 articles per category by query api with limit 200, no category filter, allow user to click on category name and redirect to category page.
+  - [x] Implement category page, query api with limit 200 and category filter
 - [x] Implement Infinite Scrolling / Pagination
 - [x] Build Global Search Bar component
 - [x] Integrate API `GET /api/articles/search`

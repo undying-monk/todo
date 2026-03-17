@@ -1,6 +1,7 @@
 package api
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -38,14 +39,22 @@ func SetupRouter() *gin.Engine {
 
 func GetArticles(c *gin.Context) {
 	cursor := c.Query("cursor")
+	category := c.Query("category")
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
-	
-	if limit < 1 || limit > 100 {
+
+	if limit < 1 || limit > 200 {
 		limit = 20
 	}
 
+	log.Println("GetArticles", cursor, category, limit)
+
 	var articles []models.Article
 	query := database.DB.Order("id desc").Limit(limit)
+
+	if category != "" {
+		query = query.Where("category = ?", category)
+	}
+
 	if cursor != "" {
 		query = query.Where("id < ?", cursor)
 	}
@@ -62,24 +71,25 @@ func GetArticles(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data":   articles,
-		"cursor": nextCursor,
-		"limit":  limit,
+		"data":     articles,
+		"cursor":   nextCursor,
+		"limit":    limit,
+		"category": category,
 	})
 }
 
 func SearchArticles(c *gin.Context) {
 	q := c.Query("q")
 	cursor := c.Query("cursor")
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "200"))
 
-	if limit < 1 || limit > 100 {
-		limit = 20
+	if limit < 1 || limit > 200 {
+		limit = 200
 	}
 
 	var articles []models.Article
 	query := database.DB.Order("id desc")
-	
+
 	if q != "" {
 		searchStr := "%" + q + "%"
 		query = query.Where("title ILIKE ? OR content_snippet ILIKE ?", searchStr, searchStr)

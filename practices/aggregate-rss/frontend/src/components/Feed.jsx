@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useParams } from 'react-router-dom';
 import ArticleCard from './ArticleCard';
 
 const Feed = ({ searchQuery }) => {
+  const { categoryName } = useParams();
   const [articles, setArticles] = useState([]);
   const [cursor, setCursor] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -11,9 +13,19 @@ const Feed = ({ searchQuery }) => {
   const fetchArticles = useCallback(async (currentCursor) => {
     setLoading(true);
     try {
-      const endpoint = searchQuery 
-        ? `http://localhost:8080/api/articles/search?q=${encodeURIComponent(searchQuery)}&limit=10${currentCursor ? `&cursor=${currentCursor}` : ''}`
-        : `http://localhost:8080/api/articles?limit=10${currentCursor ? `&cursor=${currentCursor}` : ''}`;
+      const baseParams = [
+        `limit=${categoryName ? 200 : 10}`,
+        currentCursor ? `cursor=${currentCursor}` : '',
+      ].filter(Boolean).join('&');
+
+      let endpoint = '';
+      if (searchQuery) {
+        endpoint = `http://localhost:8080/api/articles/search?q=${encodeURIComponent(searchQuery)}&${baseParams}`;
+      } else if (categoryName) {
+        endpoint = `http://localhost:8080/api/articles?category=${encodeURIComponent(categoryName)}&${baseParams}`;
+      } else {
+        endpoint = `http://localhost:8080/api/articles?${baseParams}`;
+      }
       
       const response = await fetch(endpoint);
       const result = await response.json();
@@ -33,7 +45,7 @@ const Feed = ({ searchQuery }) => {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery]);
+  }, [searchQuery, categoryName]);
 
   const lastArticleRef = useCallback(node => {
     if (loading) return;
@@ -55,6 +67,20 @@ const Feed = ({ searchQuery }) => {
 
   return (
     <div className="feed">
+      {categoryName && (
+        <div style={{ marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '2rem', borderBottom: '1px solid var(--card-border)', paddingBottom: '0.5rem' }}>
+            Category: <span style={{ color: 'var(--accent-color)' }}>{categoryName}</span>
+          </h2>
+        </div>
+      )}
+      {searchQuery && (
+        <div style={{ marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '1.5rem', color: 'var(--text-secondary)' }}>
+            Search results for: <span style={{ color: 'var(--text-primary)' }}>"{searchQuery}"</span>
+          </h2>
+        </div>
+      )}
       {articles.map((article, index) => {
         if (articles.length === index + 1) {
           return (

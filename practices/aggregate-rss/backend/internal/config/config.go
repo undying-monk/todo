@@ -44,7 +44,7 @@ func LoadConfig() {
 	viper.BindEnv("database.name", "DB_NAME")
 	viper.BindEnv("database.port", "DB_PORT")
 	viper.BindEnv("fasttextmodelpath", "FASTTEXT_MODEL_PATH")
-	viper.BindEnv("enabled_scheduler", "ENABLED_SCHEDULER")
+	viper.BindEnv("enabledscheduler", "ENABLED_SCHEDULER")
 
 	// Default values
 	viper.SetDefault("database.host", "localhost")
@@ -53,7 +53,7 @@ func LoadConfig() {
 	viper.SetDefault("database.name", "news_db")
 	viper.SetDefault("database.port", "5433")
 	viper.SetDefault("fasttextmodelpath", "model.bin")
-	viper.SetDefault("enabled_scheduler", true)
+	viper.SetDefault("enabledscheduler", true)
 
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {

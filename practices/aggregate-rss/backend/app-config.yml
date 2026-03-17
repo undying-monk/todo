@@ -5,4 +5,4 @@ database:
   name: "news_db"
   port: "5433"
 fasttextmodelpath: "model.bin"
-enabled_scheduler: false
+enabledscheduler: true
