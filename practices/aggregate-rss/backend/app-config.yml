@@ -1,0 +1,6 @@
+database:
+  host: "localhost"
+  user: "news_user"
+  password: "news_password"
+  name: "news_db"
+  port: "5433"
