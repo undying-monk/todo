@@ -40,10 +40,10 @@ func SetupRouter() *gin.Engine {
 func GetArticles(c *gin.Context) {
 	cursor := c.Query("cursor")
 	category := c.Query("category")
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "200"))
 
 	if limit < 1 || limit > 200 {
-		limit = 20
+		limit = 200
 	}
 
 	log.Println("GetArticles", cursor, category, limit)

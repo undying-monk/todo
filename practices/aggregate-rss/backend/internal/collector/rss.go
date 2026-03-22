@@ -27,7 +27,7 @@ var sourceMetadata = map[string]struct {
 		Selector: "div.wrap-list-rss ul.list-rss a",
 		Favicon:  "https://vne-static.zadn.vn/vnews/v1/favicon.ico",
 		BaseURL:  "https://vnexpress.net",
-		Enabled:  false,
+		Enabled:  true,
 	},
 	"TuoiTre": {
 		IndexURL: "https://tuoitre.vn/rss.htm",
@@ -146,6 +146,7 @@ func mapToInternalCategory(rssCategories []string) string {
 func CollectAllFeeds() {
 	log.Println("Starting comprehensive RSS feed collection...")
 	fp := gofeed.NewParser()
+	loc, _ := time.LoadLocation("Asia/Ho_Chi_Minh")
 
 	for source, metadata := range sourceMetadata {
 		if !metadata.Enabled {
@@ -178,7 +179,7 @@ func CollectAllFeeds() {
 
 			var newArticles []models.Article
 			for _, item := range feed.Items {
-				pubDate := time.Now()
+				pubDate := time.Now().In(loc)
 				if item.PublishedParsed != nil {
 					pubDate = *item.PublishedParsed
 				} else if item.UpdatedParsed != nil {
