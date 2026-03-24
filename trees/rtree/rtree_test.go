@@ -12,6 +12,11 @@ var defaultEntries = []*Entry{
 			MaxX: 1,
 			MaxY: 1,
 		},
+		Data: Restaurant{
+			ID:      "A",
+			Name:    "A",
+			Address: "A",
+		},
 	},
 	{
 		MBR: Rect{
@@ -19,6 +24,11 @@ var defaultEntries = []*Entry{
 			MinY: 1,
 			MaxX: 2,
 			MaxY: 2,
+		},
+		Data: Restaurant{
+			ID:      "B",
+			Name:    "B",
+			Address: "B",
 		},
 	},
 }
@@ -133,7 +143,7 @@ func TestInsert(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			test.currentNode.Insert(test.rect, nil)
+			test.currentNode.Insert(test.rect, Restaurant{})
 			compareNodes(t, test.expectedNode, test.currentNode)
 		})
 	}
@@ -174,5 +184,115 @@ func compareNodes(t *testing.T, expected, actual *Node) {
 		} else if expEntry.Child != nil {
 			compareNodes(t, expEntry.Child, actEntry.Child)
 		}
+	}
+}
+
+func TestSearchOverlap(t *testing.T) {
+	tests := []struct {
+		name          string
+		rect          Rect
+		currentNode   *Node
+		expectedOuput []Restaurant
+	}{
+		{
+			name: "search leaf node",
+			rect: Rect{
+				MinX: 0,
+				MinY: 0,
+				MaxX: 1,
+				MaxY: 1,
+			},
+			currentNode: &Node{
+				IsLeaf:     true,
+				MaxEntries: 2,
+				MinEntries: 1,
+				Entries:    defaultEntries[:1],
+			},
+			expectedOuput: []Restaurant{
+				Restaurant{
+					ID:      "A",
+					Name:    "A",
+					Address: "A",
+				},
+			},
+		}, {
+			name: "search internal node",
+			rect: Rect{
+				MinX: 0,
+				MinY: 0,
+				MaxX: 1,
+				MaxY: 1,
+			},
+			currentNode: &Node{
+				IsLeaf:     false,
+				MaxEntries: 2,
+				MinEntries: 1,
+				Entries: []*Entry{
+					{
+						MBR: defaultEntries[0].MBR,
+						Child: &Node{
+							IsLeaf:     true,
+							MaxEntries: 2,
+							MinEntries: 1,
+							Entries: []*Entry{
+								{
+									MBR:  defaultEntries[0].MBR,
+									Data: defaultEntries[0].Data,
+								},
+							},
+						},
+					}, {
+						MBR: Rect{
+							MinX: 2,
+							MinY: 2,
+							MaxX: 4,
+							MaxY: 4,
+						},
+						Child: &Node{
+							IsLeaf:     true,
+							MaxEntries: 2,
+							MinEntries: 1,
+							Entries: []*Entry{
+								{
+									MBR: Rect{
+										MinX: 2,
+										MinY: 2,
+										MaxX: 3,
+										MaxY: 3,
+									},
+									Data: Restaurant{
+										ID:      "E",
+										Name:    "E",
+										Address: "E",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedOuput: []Restaurant{
+				Restaurant{
+					ID:      "A",
+					Name:    "A",
+					Address: "A",
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			actualOutput := test.currentNode.SearchOverlap(test.rect)
+			if len(test.expectedOuput) != len(actualOutput) {
+				t.Errorf("expected %d restaurants, got %d", len(test.expectedOuput), len(actualOutput))
+				return
+			}
+			for i := range test.expectedOuput {
+				if test.expectedOuput[i] != actualOutput[i] {
+					t.Errorf("expected restaurant %v, got %v", test.expectedOuput[i], actualOutput[i])
+				}
+			}
+		})
 	}
 }

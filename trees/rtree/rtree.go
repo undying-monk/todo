@@ -17,7 +17,7 @@ type Rect struct {
 type Entry struct {
 	MBR   Rect
 	Child *Node
-	Data  interface{}
+	Data  Restaurant
 }
 
 type Node struct {
@@ -45,6 +45,29 @@ func (rect *Rect) Area() float64 {
 
 func (rect Rect) enlargement(other Rect) float64 {
 	return rect.Extend(other).Area() - rect.Area()
+}
+
+func (rect *Rect) Overlap(other Rect) bool {
+	return rect.MinX <= other.MaxX && other.MinX <= rect.MaxX &&
+		rect.MinY <= other.MaxY && other.MinY <= rect.MaxY
+}
+
+func (n *Node) SearchOverlap(newMBR Rect) []Restaurant {
+	res := []Restaurant{}
+
+	for _, v := range n.Entries {
+		if v.MBR.Overlap(newMBR) {
+			if n.IsLeaf {
+				res = append(res, v.Data)
+			} else {
+				data := v.Child.SearchOverlap(newMBR)
+				if len(data) > 0 {
+					res = append(res, data...)
+				}
+			}
+		}
+	}
+	return res
 }
 
 func (n *Node) FindBestEntry(newMBR Rect, bestEntry *Entry) *Entry {
@@ -242,7 +265,7 @@ func (n *Node) SplitNode() {
 	}
 }
 
-func (n *Node) Insert(rect Rect, data interface{}) *Node {
+func (n *Node) Insert(rect Rect, data Restaurant) *Node {
 	leafNode := n.Traverse(rect)
 	leafNode.AppendEntries([]*Entry{
 		{
