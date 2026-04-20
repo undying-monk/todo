@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SSE Client Demo</title>
+</head>
+<body>
+    <h1>Real-time Server Updates</h1>
+    <div id="updates"></div>
+
+    <script>
+        // 1. Initialize connection to the server endpoint
+        const eventSource = new EventSource('http://localhost:3000/events');
+
+        const updateDiv = document.getElementById('updates');
+
+        // 2. Listen for 'message' events (default)
+        eventSource.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            const newElement = document.createElement("p");
+            newElement.textContent = `[${data.time}] ${data.info}`;
+            updateDiv.prepend(newElement);
+        };
+
+        // 3. Handle connection errors or server shutdown
+        eventSource.onerror = (error) => {
+            console.error("SSE connection failed:", error);
+            // The browser automatically tries to reconnect by default
+            if (eventSource.readyState === EventSource.CLOSED) {
+                console.log("Connection was closed.");
+            }
+        };
+
+        // Optional: To stop listening manually
+        // eventSource.close();
+    </script>
+</body>
+</html>
