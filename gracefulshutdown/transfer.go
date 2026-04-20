@@ -8,6 +8,14 @@ import (
 
 func Transfer(ctx context.Context, tasks <-chan int) {
 	for {
+		// pre-check step to prevent randomness in select
+		select {
+		case <-ctx.Done():
+			fmt.Println(ctx.Err())
+			return
+		default:
+		}
+
 		select {
 		case <-ctx.Done():
 			fmt.Println(ctx.Err())
@@ -17,13 +25,9 @@ func Transfer(ctx context.Context, tasks <-chan int) {
 				return
 			}
 			// db transaction
+			fmt.Printf("Started Task %d\n", task)
 			time.Sleep(2 * time.Second)
-			fmt.Println(task)
-
-			// notification
-			// time.Sleep(3 * time.Second)
-			// default:
-			// 	fmt.Println("default")
+			fmt.Printf("Finished Task %d\n", task)
 		}
 	}
 }
@@ -34,13 +38,13 @@ func main() {
 	defer cancel()
 
 	tasks := make(chan int, 10)
-	go func() {
-		for i := 1; i <= 10; i++ {
-			tasks <- i
-		}
-		close(tasks)
-	}()
-	go Transfer(ctx, tasks)
+	for i := 1; i <= 10; i++ {
+		tasks <- i
+	}
+	close(tasks)
 
+	for i := 1; i <= 3; i++ {
+		go Transfer(ctx, tasks)
+	}
 	time.Sleep(100 * time.Second)
 }
