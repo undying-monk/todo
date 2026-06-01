@@ -54,7 +54,7 @@ def compute_cost(Y_hat, Y):
     cost = np.sum((Y_hat - Y)**2) / (2*m)
     return cost
 
-def nn_model(X, Y, num_iterations=100,learning_rate=0.01):
+def nn_model(X, Y, num_iterations=100,learning_rate=1.2):
     # define layer of neural networks
     
     n_x, n_y = init_layers(X,Y)
@@ -65,10 +65,10 @@ def nn_model(X, Y, num_iterations=100,learning_rate=0.01):
 
     # loop: forward propagation + backward propagation, update parameters
     for i in range(0, num_iterations):
-        Y_hat = forward_propagation(X_norm, parameters)
+        Y_hat = forward_propagation(X, parameters)
         cost = compute_cost(Y_hat, Y)
 
-        grads = backward_propagation(Y_hat, X_norm, Y_norm)
+        grads = backward_propagation(Y_hat, X, Y)
         parameters = update_parameters(parameters, grads, learning_rate)
 
         print("Cost after iteration %i: %f" %(i, cost))
@@ -89,25 +89,4 @@ def predict(X,Y, parameters,X_pred):
     return Y_pred[0]
 
 
-adv = pd.read_csv("./data/tvmarketing.csv")
-# adv.plot(x='TV', y='Sales', kind='scatter', c='black')
-adv_norm = (adv - np.mean(adv,axis=0)) / np.std(adv)
-adv_norm.plot(x='TV', y='Sales', kind='scatter', c='black')
-X_norm = adv_norm['TV']
-Y_norm = adv_norm['Sales']
 
-X_norm = np.array(X_norm).reshape((1,len(X_norm)))
-Y_norm = np.array(Y_norm).reshape((1,len(Y_norm)))
-
-parameters_simple = nn_model(X_norm, Y_norm, num_iterations=30, learning_rate=1.2)
-print("W = " + str(parameters_simple["W"]))
-print("b = " + str(parameters_simple["b"]))
-
-# visualize scatters
-# plt.scatter(X_norm, Y_norm, color='black')
-# plt.show()
-
-X_pred = np.array([50, 120, 280])
-Y_pred = predict(adv["TV"], adv["Sales"], parameters_simple, X_pred)
-print(f"TV marketing expenses:\n{X_pred}")
-print(f"Predictions of sales:\n{Y_pred}")
