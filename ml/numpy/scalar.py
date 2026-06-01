@@ -1,6 +1,7 @@
 import numpy as np
 
 x = np.array([1,2,3])
+# broast cast scalar into np.array same size
 print(x + 2)
 print(x - 2)
 print(x / 2)

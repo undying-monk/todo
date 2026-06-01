@@ -19,7 +19,7 @@ print(y[-1::]) # D, E, F
 print(y[-2::]) # [['A','B','C'],['D','E','F']]
 
 # row, column
-print(y[:,0]) # A,D column 0
+print(y[:,0]) # A,D all rows with column 0
 print(y[:,1]) # B,E column 1
 print(y[:,0:2]) # 2 columns A,B and D,E
 print(y[:,1:]) # from column 1 B,C and E,F
