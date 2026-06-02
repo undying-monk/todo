@@ -3,3 +3,4 @@ numpy
 pandas
 sympy
 jax
+scikit-learn
