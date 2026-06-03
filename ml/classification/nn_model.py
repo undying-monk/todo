@@ -8,7 +8,7 @@ np.random.seed(3)
 
 
 def sigmoid(z):
-    return 1/(1+np.exp(-z))
+    return  1 / (1+np.exp(-z))
 
 def layer_sizes(X,Y):
     return (X.shape[0], Y.shape[0])
