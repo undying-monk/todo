@@ -2,3 +2,4 @@ venv/
 __pycache__/
 regression/data/
 dataframe/data/
+naive_bayes/data/
