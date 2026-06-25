@@ -3,3 +3,5 @@ __pycache__/
 regression/data/
 dataframe/data/
 naive_bayes/data/
+confident_interval/data/
+ab_testing/data/

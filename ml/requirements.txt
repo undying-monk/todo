@@ -5,3 +5,5 @@ sympy
 jax
 scikit-learn
 nltk
+scipy
+statsmodels
